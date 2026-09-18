@@ -1,7 +1,7 @@
 import streamlit as st
 from typing import Dict, List
-from src.core.persona import Persona
-from src.core.llm import stream_chat
+from resume_agent.core.llm import stream_chat
+from resume_agent.core.persona import Persona
 
 INTRO_TMPL = "My name is {user_name} and you can ask me any career related questions."
 

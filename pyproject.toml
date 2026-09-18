@@ -1,0 +1,31 @@
+[project]
+name = "resume-agent"
+version = "0.1.0"
+description = "A configurable Streamlit chatbot that answers career-related questions on behalf of any user, grounded in an uploaded resume PDF."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+authors = [{ name = "Hamza Munir" }]
+dependencies = [
+    "streamlit>=1.30,<2",
+    "openai>=1.30,<2",
+    "pypdf>=4.2,<7",
+    "python-dotenv>=1.0,<2",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.6"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+src = ["src"]

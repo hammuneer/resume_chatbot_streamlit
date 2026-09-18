@@ -1,95 +1,92 @@
+# Resume Agent
 
-# 🤖 Resume Agent
+A configurable Streamlit chatbot that answers career-related questions **on behalf of any user** —
+not just one hardcoded persona. Visitors set a name, optionally upload a PDF resume, and add free-text
+notes from the sidebar; the assistant is grounded in whatever is provided.
 
-An AI chatbot that answers career-related questions on behalf of **any user**.  
-Users can configure their **name**, upload a **PDF resume** (optional), and add **extra information** from a **sidebar**.  
-The bot opens with:  
-> “My name is {user_name} and you can ask me any career related questions.”
+## Features
 
----
+- **Generic profile setup**, no code changes needed: name (required), PDF resume upload (optional),
+  and free-text extra info (contact details, portfolio link, achievements, ...).
+- **Streaming responses** via the OpenAI Chat Completions API.
+- **Resume parsing** (PDF bytes → text) via `pypdf`, tolerant of missing/malformed PDFs.
+- **Modular codebase**: LLM client, prompt construction, persona state, and UI are separated.
+- **Stateful chat** using Streamlit's `session_state`.
 
-## ✨ Features
+## How it works
 
-- **Generic profile setup** (no code changes needed):  
-  - Name (required)  
-  - PDF Resume upload (PDF-only, optional)  
-  - Additional Info (contact, portfolio, short bio, achievements, etc.)
-- **Streaming responses** via OpenAI Chat Completions
-- **Resume parsing** (PDF → text) via `pypdf`
-- **Modular codebase** (LLM client, prompts, persona, UI separated)
-- **Stateful chat** using Streamlit’s `session_state`
-- **Clean UX**: User message and streaming reply appear on the same run
-
----
-
-## 🧱 Repository Structure
-hamza-agent/
-├─ app.py
-├─ .env.example
-├─ .gitignore
-├─ README.md
-├─ requirements.txt
-└─ src/
-├─ init.py
-├─ core/
-│ ├─ init.py
-│ ├─ prompts.py # builds the system prompt from name + resume text + extra info
-│ ├─ resume_parser.py # PDF bytes -> text extraction
-│ ├─ llm.py # OpenAI client + streaming generator
-│ └─ persona.py # Persona dataclass (name/resume/extra), caches parsed text
-└─ ui/
-├─ init.py
-└─ streamlit_chat.py # Sidebar config + chat UI + streaming flow
-
----
-
-## ⚙️ Requirements
-
-- Python 3.9–3.12
-- An OpenAI API key
-
-`requirements.txt`:
-
-```bash
-openai>=1.30.0,<2
-python-dotenv>=1.0.1
-pypdf>=4.2.0
-streamlit>=1.30.0
 ```
----
-
-## 🔐 Environment Variables
-
-Create a `.env` in the project root (copy from `.env.example`):
-
-```bash
-OPENAI_API_KEY=sk-your-key
-# Optional: defaults to gpt-4o
-OPENAI_MODEL=gpt-4o
+Sidebar (name, resume PDF, extra info)
+        │
+        ▼
+   Persona (resume_agent.core.persona)
+        │  caches parsed PDF text
+        ▼
+build_system_prompt (resume_agent.core.prompts)
+        │
+        ▼
+stream_chat (resume_agent.core.llm) ──> OpenAI Chat Completions (streamed)
+        │
+        ▼
+st.write_stream (resume_agent.ui.streamlit_chat)
 ```
 
----
+## Project structure
 
-## 🚀 Setup & Run
-### 1) Create and activate a virtual environment
-#### macOS / Linux
-python3 -m venv .venv
-source .venv/bin/activate
+```
+.
+├── app.py                          # Streamlit entry point
+├── src/resume_agent/
+│   ├── core/
+│   │   ├── llm.py                  # OpenAI client + streaming generator
+│   │   ├── persona.py              # Persona dataclass; caches parsed resume text
+│   │   ├── prompts.py              # builds the system prompt
+│   │   └── resume_parser.py        # PDF bytes -> text extraction
+│   └── ui/
+│       └── streamlit_chat.py       # sidebar config + chat UI + streaming flow
+├── tests/
+├── pyproject.toml
+└── requirements.txt
+```
 
-#### Windows (PowerShell)
-python -m venv .venv
-.venv\Scripts\Activate.ps1
+## Getting started
 
-### 2) Install dependencies
-pip install -r requirements.txt
+### Prerequisites
 
-### 3) Configure environment
+- Python 3.10+
+- An [OpenAI API key](https://platform.openai.com/api-keys)
+
+### Installation
+
+```bash
+git clone https://github.com/hammuneer/resume_chatbot_streamlit.git
+cd resume_chatbot_streamlit
+python -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev]"
+```
+
+### Configuration
+
+```bash
 cp .env.example .env
+# then edit .env and set OPENAI_API_KEY (OPENAI_MODEL is optional, defaults to gpt-4o)
+```
 
-#### Edit .env and set your OPENAI_API_KEY
+### Run
 
-### 4) Start the app
+```bash
 streamlit run app.py
+```
 
+Open the local URL Streamlit prints (default: http://localhost:8501), then set your name (and
+optionally upload a resume PDF) in the sidebar and click **Apply / Update Profile**.
 
-Open the local URL Streamlit prints (default: http://localhost:8501).
+## Testing
+
+```bash
+pytest
+```
+
+## License
+
+See [LICENSE](LICENSE).
